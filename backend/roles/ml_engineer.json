@@ -1,0 +1,40 @@
+{
+  "role": "ML Engineer",
+  "slug": "ml_engineer",
+  "description": "Builds, trains, and deploys machine learning models into production systems. Bridges the gap between data science research and scalable software engineering.",
+  "core_skills": [
+    "Python",
+    "NumPy",
+    "Pandas",
+    "Scikit-learn",
+    "PyTorch or TensorFlow",
+    "Feature Engineering",
+    "Model Evaluation & Metrics",
+    "Supervised Learning",
+    "Unsupervised Learning",
+    "SQL",
+    "Git & Version Control",
+    "REST APIs",
+    "Model Deployment",
+    "Linux / Bash"
+  ],
+  "good_to_have": [
+    "HuggingFace Transformers",
+    "LLM Fine-tuning (LoRA / QLoRA)",
+    "SHAP / Model Explainability",
+    "MLflow or Weights & Biases",
+    "Docker",
+    "FastAPI",
+    "Cloud Platforms (AWS / GCP / Azure)",
+    "Reinforcement Learning",
+    "RAG Pipelines",
+    "Distributed Training"
+  ],
+  "expected_projects": [
+    "End-to-end ML pipeline: raw data → feature engineering → model → deployed API",
+    "Classification or regression model on a real-world dataset with SHAP explainability",
+    "Fine-tuned LLM on a domain-specific task (QA, summarization, classification)",
+    "Kaggle competition with documented methodology and leaderboard result",
+    "Model serving with FastAPI + Dockerized deployment"
+  ]
+}

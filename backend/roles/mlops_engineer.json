@@ -1,0 +1,37 @@
+{
+  "role": "MLOps Engineer",
+  "slug": "mlops_engineer",
+  "description": "Operationalizes machine learning models at scale — building pipelines, automating training, managing deployments, and monitoring model health in production.",
+  "core_skills": [
+    "Python",
+    "Git",
+    "Docker",
+    "CI/CD Pipelines",
+    "MLflow or DVC",
+    "Model Serving (FastAPI / TorchServe)",
+    "Linux / Bash",
+    "Cloud Platforms (AWS / GCP / Azure — one minimum)",
+    "Data Versioning",
+    "Model Monitoring & Drift Detection",
+    "Basic ML knowledge (training, evaluation, metrics)"
+  ],
+  "good_to_have": [
+    "Kubernetes",
+    "Airflow or Prefect (orchestration)",
+    "Evidently AI",
+    "Prometheus + Grafana",
+    "Feature Stores (Feast)",
+    "Terraform (IaC)",
+    "LLMOps (LangSmith, Ragas)",
+    "Spark",
+    "Weights & Biases",
+    "A/B model testing in production"
+  ],
+  "expected_projects": [
+    "End-to-end ML pipeline with DVC or MLflow tracking, versioned data, and reproducible runs",
+    "Dockerized model deployed behind a FastAPI endpoint with health checks",
+    "CI/CD pipeline that auto-retrains a model on new data and redeploys on metric threshold",
+    "Model monitoring dashboard with drift detection alerts (Evidently AI or custom)",
+    "Model registry workflow: train → register → stage → promote to production"
+  ]
+}

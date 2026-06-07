@@ -1,0 +1,36 @@
+{
+  "role": "Backend Developer",
+  "slug": "backend_developer",
+  "description": "Builds and maintains server-side logic, APIs, databases, and infrastructure. Focuses on reliability, scalability, and correctness of systems that power applications.",
+  "core_skills": [
+    "Python or JavaScript (Node.js) or Java or Go",
+    "REST API Design",
+    "SQL (PostgreSQL / MySQL)",
+    "Authentication & Authorization (JWT, OAuth2)",
+    "Git",
+    "Data Structures & Algorithms",
+    "HTTP & Networking basics",
+    "Database Design & Indexing",
+    "Error Handling & Logging",
+    "Linux / Bash"
+  ],
+  "good_to_have": [
+    "GraphQL",
+    "Redis (caching & queues)",
+    "Docker",
+    "Message Queues (Kafka / RabbitMQ)",
+    "gRPC",
+    "NoSQL (MongoDB / DynamoDB)",
+    "System Design (Load Balancing, CAP theorem)",
+    "WebSockets",
+    "Cloud (AWS / GCP)",
+    "API Rate Limiting & Security"
+  ],
+  "expected_projects": [
+    "Production-grade REST API with proper auth, validation, error handling, and docs",
+    "System with background job processing (email queue, scheduled tasks)",
+    "Database-heavy project demonstrating schema design, indexing, and query optimization",
+    "API with rate limiting, logging, and structured error responses",
+    "Microservices-lite project or service with a message queue integration"
+  ]
+}

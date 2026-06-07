@@ -1,0 +1,39 @@
+{
+  "role": "Data Scientist",
+  "slug": "data_scientist",
+  "description": "Extracts insights from data using statistical analysis, machine learning, and visualization. Focused on understanding patterns, answering business questions, and communicating findings.",
+  "core_skills": [
+    "Python",
+    "SQL",
+    "Statistics & Probability",
+    "Pandas",
+    "NumPy",
+    "Matplotlib / Seaborn",
+    "Exploratory Data Analysis (EDA)",
+    "Hypothesis Testing",
+    "Scikit-learn",
+    "Regression & Classification Models",
+    "Data Cleaning & Preprocessing",
+    "A/B Testing",
+    "Git"
+  ],
+  "good_to_have": [
+    "R",
+    "Tableau or Power BI",
+    "Time Series Analysis",
+    "NLP Basics",
+    "Deep Learning (introductory)",
+    "Spark / BigQuery",
+    "Experiment Design",
+    "Causal Inference",
+    "Feature Stores",
+    "Business Communication & Storytelling"
+  ],
+  "expected_projects": [
+    "Full EDA report on a real dataset with visualizations and written insights",
+    "Predictive model with proper train/val/test split, metrics, and business interpretation",
+    "A/B test simulation or analysis with statistical significance reporting",
+    "Dashboard in Tableau, Power BI, or Streamlit communicating key business metrics",
+    "Churn prediction or customer segmentation project with stakeholder-ready summary"
+  ]
+}

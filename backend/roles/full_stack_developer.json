@@ -1,0 +1,36 @@
+{
+  "role": "Full Stack Developer",
+  "slug": "full_stack_developer",
+  "description": "Designs and builds both the frontend and backend of web applications. Owns the entire product layer — from UI to database to deployment.",
+  "core_skills": [
+    "HTML & CSS",
+    "JavaScript (ES6+)",
+    "React or Vue",
+    "Node.js or Python (backend)",
+    "REST API Design",
+    "SQL (PostgreSQL or MySQL)",
+    "Git & Version Control",
+    "Authentication (JWT / OAuth)",
+    "Responsive Design",
+    "Basic DevOps (deployment, environment management)"
+  ],
+  "good_to_have": [
+    "TypeScript",
+    "Next.js",
+    "GraphQL",
+    "Docker",
+    "Redis (caching)",
+    "NoSQL (MongoDB)",
+    "CI/CD Pipelines",
+    "WebSockets",
+    "Testing (Jest / Pytest)",
+    "Cloud Deployment (Vercel / Railway / AWS)"
+  ],
+  "expected_projects": [
+    "Full-stack web app with user auth, CRUD, and a real database (not a tutorial clone)",
+    "API-integrated project consuming a third-party service (payments, maps, LLMs)",
+    "Deployed application with a real public URL and working prod environment",
+    "Portfolio site or SaaS MVP with frontend + backend + DB all connected",
+    "Real-time feature using WebSockets or SSE (chat, live notifications, dashboards)"
+  ]
+}

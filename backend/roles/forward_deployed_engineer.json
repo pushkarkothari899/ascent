@@ -1,0 +1,36 @@
+{
+  "role": "Forward Deployed Engineer",
+  "slug": "forward_deployed_engineer",
+  "description": "A full-stack engineer embedded with enterprise clients — building custom tooling on-site, translating business problems into working software, and owning delivery end-to-end. Equal parts engineer, consultant, and problem-solver.",
+  "core_skills": [
+    "Full Stack Development (Frontend + Backend)",
+    "Python or JavaScript / TypeScript",
+    "REST API Design & Integration",
+    "SQL",
+    "Data Structures & Algorithms",
+    "System Design fundamentals",
+    "Linux / Bash",
+    "Git",
+    "AI / LLM Integration (prompt engineering, API usage)",
+    "Technical Communication & Documentation",
+    "Requirements Gathering & Scoping",
+    "Debugging in unfamiliar codebases"
+  ],
+  "good_to_have": [
+    "DevOps basics (Docker, CI/CD)",
+    "Cloud Platforms (AWS / GCP / Azure)",
+    "Business Acumen (ROI framing, tradeoffs)",
+    "Stakeholder Management",
+    "Enterprise Workflow understanding",
+    "Data pipelines & ETL",
+    "Security fundamentals",
+    "Product intuition"
+  ],
+  "expected_projects": [
+    "Full-stack internal tool built for a real use case (not a tutorial) — deployed and used",
+    "LLM-powered feature integrated into an existing workflow (summarization, extraction, search)",
+    "System built under time constraint with documented tradeoff decisions",
+    "Client-facing or stakeholder-ready demo with a working live deployment",
+    "Technical write-up or post-mortem showing how you diagnosed and solved a production issue"
+  ]
+}
