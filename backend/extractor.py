@@ -70,10 +70,15 @@ Text:
             "model": "openrouter/auto",
             "messages": [{"role": "user", "content": prompt}],
             "max_tokens": 500
-        }
+        },
+        timeout=8
     )
 
     result = response.json()
+
+    if "choices" not in result:
+        return []
+
     content = result["choices"][0]["message"].get("content") or ""
     raw = content.strip()
 
