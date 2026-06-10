@@ -67,6 +67,7 @@ npm start
 ```
 
 ## Project Structure
+```
 ascent/
 ├── backend/
 │   ├── main.py          # FastAPI app, all endpoints
@@ -82,6 +83,7 @@ ascent/
 ├── Evaluating.js
 ├── Output.js
 └── Dashboard.js
+```
 
 ## Author
 
