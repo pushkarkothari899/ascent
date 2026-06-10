@@ -1,13 +1,40 @@
-import { useState, motion } from "react";
+import { useState } from "react";
 import { motion as m } from "framer-motion";
+import { supabase } from "../supabaseClient";
 
 export default function Auth({ onNext }) {
   const [mode, setMode] = useState("login");
   const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onNext();
+    setError("");
+    setLoading(true);
+
+    try {
+      if (mode === "signup") {
+        const { data, error } = await supabase.auth.signUp({
+          email: form.email,
+          password: form.password,
+          options: { data: { full_name: form.name } },
+        });
+        if (error) throw error;
+        onNext(data.session);
+      } else {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: form.email,
+          password: form.password,
+        });
+        if (error) throw error;
+        onNext(data.session);
+      }
+    } catch (err) {
+      setError(err.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -28,7 +55,6 @@ export default function Auth({ onNext }) {
         transition={{ delay: 0.2, duration: 0.6 }}
         style={styles.card}
       >
-        {/* Header */}
         <div style={styles.cardHeader}>
           <h1 style={styles.logo}>ASCENT</h1>
           <p style={styles.subtitle}>
@@ -36,12 +62,11 @@ export default function Auth({ onNext }) {
           </p>
         </div>
 
-        {/* Toggle */}
         <div style={styles.toggle}>
           {["login", "signup"].map((m_) => (
             <button
               key={m_}
-              onClick={() => setMode(m_)}
+              onClick={() => { setMode(m_); setError(""); }}
               style={{ ...styles.toggleBtn, ...(mode === m_ ? styles.toggleActive : {}) }}
             >
               {m_ === "login" ? "Sign In" : "Sign Up"}
@@ -49,7 +74,6 @@ export default function Auth({ onNext }) {
           ))}
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} style={styles.form}>
           {mode === "signup" && (
             <m.div
@@ -89,31 +113,34 @@ export default function Auth({ onNext }) {
             />
           </div>
 
+          {error && (
+            <div style={styles.errorBox}>
+              {error}
+            </div>
+          )}
+
           <m.button
             whileHover={{ scale: 1.02, boxShadow: "0 0 30px rgba(232,148,58,0.4)" }}
             whileTap={{ scale: 0.98 }}
             type="submit"
-            style={styles.submitBtn}
+            style={{ ...styles.submitBtn, opacity: loading ? 0.7 : 1 }}
+            disabled={loading}
           >
-            {mode === "login" ? "Enter the Arena" : "Start Climbing"}
+            {loading
+              ? "Please wait..."
+              : mode === "login" ? "Enter the Arena" : "Start Climbing"}
           </m.button>
         </form>
 
         <p style={styles.note}>
           {mode === "login" ? "No account? " : "Already climbing? "}
           <button
-            onClick={() => setMode(mode === "login" ? "signup" : "login")}
+            onClick={() => { setMode(mode === "login" ? "signup" : "login"); setError(""); }}
             style={styles.switchBtn}
           >
             {mode === "login" ? "Sign up free" : "Sign in"}
           </button>
         </p>
-
-        {/* Mock note */}
-        <div style={styles.mockNote}>
-          <span style={styles.mockDot}>◆</span>
-          Auth is mocked — any input continues
-        </div>
       </m.div>
     </m.div>
   );
@@ -150,9 +177,7 @@ const styles = {
     borderRadius: 8, padding: "40px 36px",
     boxShadow: "0 0 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(232,148,58,0.05)",
   },
-  cardHeader: {
-    textAlign: "center", marginBottom: 28,
-  },
+  cardHeader: { textAlign: "center", marginBottom: 28 },
   logo: {
     fontFamily: "'Cinzel', serif",
     fontSize: 32, fontWeight: 900, letterSpacing: "0.3em",
@@ -160,9 +185,7 @@ const styles = {
     WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
     backgroundClip: "text", marginBottom: 8,
   },
-  subtitle: {
-    fontSize: 14, color: "var(--text-secondary)", fontStyle: "italic",
-  },
+  subtitle: { fontSize: 14, color: "var(--text-secondary)", fontStyle: "italic" },
   toggle: {
     display: "flex", background: "var(--bg-elevated)",
     borderRadius: 6, padding: 4, marginBottom: 28,
@@ -172,17 +195,10 @@ const styles = {
     background: "transparent", border: "none",
     color: "var(--text-muted)", fontSize: 13, fontWeight: 500,
     cursor: "pointer", borderRadius: 4,
-    fontFamily: "'Outfit', sans-serif",
-    transition: "all 0.2s",
+    fontFamily: "'Outfit', sans-serif", transition: "all 0.2s",
   },
-  toggleActive: {
-    background: "rgba(232,148,58,0.15)",
-    color: "#e8943a",
-  },
-  form: {
-    display: "flex", flexDirection: "column", gap: 18,
-    marginBottom: 20,
-  },
+  toggleActive: { background: "rgba(232,148,58,0.15)", color: "#e8943a" },
+  form: { display: "flex", flexDirection: "column", gap: 18, marginBottom: 20 },
   field: { display: "flex", flexDirection: "column", gap: 6 },
   label: {
     fontSize: 12, fontWeight: 500, letterSpacing: "0.08em",
@@ -196,6 +212,12 @@ const styles = {
     fontSize: 14, fontFamily: "'Outfit', sans-serif",
     outline: "none", transition: "border-color 0.2s",
   },
+  errorBox: {
+    padding: "10px 14px",
+    background: "rgba(220,50,50,0.1)",
+    border: "1px solid rgba(220,50,50,0.3)",
+    borderRadius: 4, color: "#ff6b6b", fontSize: 13,
+  },
   submitBtn: {
     padding: "13px",
     background: "linear-gradient(135deg, #e8943a, #c47820)",
@@ -204,20 +226,11 @@ const styles = {
     fontSize: 13, fontWeight: 700, letterSpacing: "0.1em",
     cursor: "pointer", marginTop: 4,
   },
-  note: {
-    textAlign: "center", fontSize: 13,
-    color: "var(--text-muted)", marginBottom: 16,
-  },
+  note: { textAlign: "center", fontSize: 13, color: "var(--text-muted)", marginBottom: 16 },
   switchBtn: {
     background: "none", border: "none",
     color: "#e8943a", cursor: "pointer",
     fontSize: 13, fontFamily: "'Outfit', sans-serif",
     textDecoration: "underline",
   },
-  mockNote: {
-    display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-    fontSize: 11, color: "var(--text-muted)",
-    borderTop: "1px solid var(--border)", paddingTop: 16,
-  },
-  mockDot: { color: "var(--purple)", fontSize: 8 },
 };

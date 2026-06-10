@@ -71,7 +71,7 @@ Text:
             "messages": [{"role": "user", "content": prompt}],
             "max_tokens": 500
         },
-         timeout=15
+         timeout=8
     )
 
     result = response.json()

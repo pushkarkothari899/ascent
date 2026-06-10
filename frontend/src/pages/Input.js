@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { motion as m } from "framer-motion";
+import { useState, useRef } from "react";
+import { motion as m, AnimatePresence } from "framer-motion";
 
 const ROLES = [
   { slug: "ml_engineer", label: "ML Engineer", icon: "⚡" },
@@ -14,6 +14,45 @@ export default function Input({ onAnalyze }) {
   const [text, setText] = useState("");
   const [role, setRole] = useState("");
   const [error, setError] = useState("");
+  const [mode, setMode] = useState("text"); // "text" or "pdf"
+  const [pdfStatus, setPdfStatus] = useState(""); // "uploading", "done", "error"
+  const [pdfName, setPdfName] = useState("");
+  const fileRef = useRef();
+
+  const handlePdfUpload = async (file) => {
+    if (!file || file.type !== "application/pdf") {
+      setPdfStatus("error");
+      return;
+    }
+    setPdfName(file.name);
+    setPdfStatus("uploading");
+    const formData = new FormData();
+    formData.append("file", file);
+    try {
+      const res = await fetch("http://127.0.0.1:8000/extract-pdf", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.error) {
+        setPdfStatus("error");
+        setError(data.error);
+      } else {
+        setText(data.text);
+        setPdfStatus("done");
+        setError("");
+      }
+    } catch {
+      setPdfStatus("error");
+      setError("Failed to connect to backend.");
+    }
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    handlePdfUpload(file);
+  };
 
   const handleSubmit = () => {
     if (!text.trim()) return setError("Tell us about your skills and experience.");
@@ -21,8 +60,6 @@ export default function Input({ onAnalyze }) {
     setError("");
     onAnalyze(text, role);
   };
-
-  const charCount = text.length;
 
   return (
     <m.div
@@ -44,50 +81,140 @@ export default function Input({ onAnalyze }) {
       >
         {/* Header */}
         <div style={styles.header}>
-          <m.div
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ delay: 0.4, duration: 0.6 }}
-            style={styles.headerLine}
-          />
+          <m.div initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ delay: 0.4, duration: 0.6 }} style={styles.headerLine} />
           <h1 style={styles.logo}>ASCENT</h1>
-          <m.div
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ delay: 0.4, duration: 0.6 }}
-            style={styles.headerLine}
-          />
+          <m.div initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ delay: 0.4, duration: 0.6 }} style={styles.headerLine} />
         </div>
         <p style={styles.step}>Step 01 — Profile Input</p>
 
         <div style={styles.columns}>
-          {/* Left — Text input */}
+          {/* Left col */}
           <m.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3, duration: 0.6 }}
             style={styles.leftCol}
           >
-            <label style={styles.label}>
-              Your Profile
-              <span style={styles.labelHint}>Resume, bio, or describe your skills</span>
-            </label>
-            <div style={styles.textareaWrapper}>
-              <textarea
-                style={styles.textarea}
-                placeholder="I have 2 years of experience with Python, FastAPI, and building REST APIs. I've worked with Docker for containerization, deployed models on AWS, and used scikit-learn and XGBoost for ML tasks. I'm comfortable with SQL, PostgreSQL, and Git. I've also experimented with transformer models for NLP..."
-                value={text}
-                onChange={e => setText(e.target.value)}
-              />
-              <div style={styles.charCount}>
-                <span style={{ color: charCount > 100 ? "#4CAF82" : "var(--text-muted)" }}>
-                  {charCount}
-                </span> characters
-              </div>
+            {/* Mode toggle */}
+            <div style={styles.modeToggle}>
+              {["text", "pdf"].map((m_) => (
+                <button
+                  key={m_}
+                  onClick={() => { setMode(m_); setError(""); }}
+                  style={{ ...styles.modeBtn, ...(mode === m_ ? styles.modeBtnActive : {}) }}
+                >
+                  {m_ === "text" ? "✏ Paste Text" : "📄 Upload Resume"}
+                </button>
+              ))}
             </div>
+
+            <AnimatePresence mode="wait">
+              {mode === "text" ? (
+                <m.div
+                  key="text"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  style={{ flex: 1, display: "flex", flexDirection: "column" }}
+                >
+                  <label style={styles.label}>
+                    Your Profile
+                    <span style={styles.labelHint}>Resume, bio, or skills description</span>
+                  </label>
+                  <div style={styles.textareaWrapper}>
+                    <textarea
+                      style={styles.textarea}
+                      placeholder="I have experience with Python, FastAPI, Docker, SQL, scikit-learn and XGBoost for ML tasks. I've deployed models on AWS and worked with transformer models for NLP..."
+                      value={text}
+                      onChange={e => setText(e.target.value)}
+                    />
+                    <div style={styles.charCount}>
+                      <span style={{ color: text.length > 100 ? "#4CAF82" : "var(--text-muted)" }}>
+                        {text.length}
+                      </span> characters
+                    </div>
+                  </div>
+                </m.div>
+              ) : (
+                <m.div
+                  key="pdf"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  style={{ flex: 1, display: "flex", flexDirection: "column" }}
+                >
+                  <label style={styles.label}>
+                    Resume PDF
+                    <span style={styles.labelHint}>Text-based PDFs only</span>
+                  </label>
+
+                  {/* Drop zone */}
+                  <div
+                    style={{
+                      ...styles.dropZone,
+                      ...(pdfStatus === "done" ? styles.dropZoneDone : {}),
+                      ...(pdfStatus === "error" ? styles.dropZoneError : {}),
+                    }}
+                    onDrop={handleDrop}
+                    onDragOver={e => e.preventDefault()}
+                    onClick={() => fileRef.current.click()}
+                  >
+                    <input
+                      ref={fileRef}
+                      type="file"
+                      accept=".pdf"
+                      style={{ display: "none" }}
+                      onChange={e => handlePdfUpload(e.target.files[0])}
+                    />
+                    {pdfStatus === "" && (
+                      <>
+                        <span style={styles.dropIcon}>⬆</span>
+                        <p style={styles.dropText}>Drag & drop your resume PDF</p>
+                        <p style={styles.dropHint}>or click to browse</p>
+                      </>
+                    )}
+                    {pdfStatus === "uploading" && (
+                      <m.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
+                        <span style={{ fontSize: 28, color: "#e8943a" }}>⟳</span>
+                      </m.div>
+                    )}
+                    {pdfStatus === "done" && (
+                      <>
+                        <span style={{ fontSize: 28, color: "#4CAF82" }}>✓</span>
+                        <p style={{ ...styles.dropText, color: "#4CAF82" }}>{pdfName}</p>
+                        <p style={styles.dropHint}>Text extracted successfully</p>
+                      </>
+                    )}
+                    {pdfStatus === "error" && (
+                      <>
+                        <span style={{ fontSize: 28, color: "#e05c5c" }}>✗</span>
+                        <p style={{ ...styles.dropText, color: "#e05c5c" }}>Upload failed</p>
+                        <p style={styles.dropHint}>Click to try again</p>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Preview extracted text */}
+                  {pdfStatus === "done" && text && (
+                    <m.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      style={styles.extractedPreview}
+                    >
+                      <p style={styles.previewLabel}>Extracted text preview — you can edit if needed:</p>
+                      <textarea
+                        style={{ ...styles.textarea, height: 100, fontSize: 12 }}
+                        value={text}
+                        onChange={e => setText(e.target.value)}
+                      />
+                    </m.div>
+                  )}
+                </m.div>
+              )}
+            </AnimatePresence>
           </m.div>
 
-          {/* Right — Role selector */}
+          {/* Right col — role selector */}
           <m.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -108,37 +235,23 @@ export default function Input({ onAnalyze }) {
                   whileHover={{ scale: 1.02, borderColor: "rgba(232,148,58,0.5)" }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setRole(r.slug)}
-                  style={{
-                    ...styles.roleBtn,
-                    ...(role === r.slug ? styles.roleActive : {}),
-                  }}
+                  style={{ ...styles.roleBtn, ...(role === r.slug ? styles.roleActive : {}) }}
                 >
                   <span style={styles.roleIcon}>{r.icon}</span>
                   <span style={styles.roleLabel}>{r.label}</span>
-                  {role === r.slug && (
-                    <m.div
-                      layoutId="roleIndicator"
-                      style={styles.roleCheck}
-                    >✓</m.div>
-                  )}
+                  {role === r.slug && <span style={styles.roleCheck}>✓</span>}
                 </m.button>
               ))}
             </div>
           </m.div>
         </div>
 
-        {/* Error */}
         {error && (
-          <m.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            style={styles.error}
-          >
+          <m.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={styles.error}>
             ⚠ {error}
           </m.p>
         )}
 
-        {/* Submit */}
         <m.div style={styles.submitRow}>
           <m.button
             whileHover={{ scale: 1.02, boxShadow: "0 0 40px rgba(232,148,58,0.35)" }}
@@ -159,8 +272,7 @@ const styles = {
   container: {
     position: "fixed", inset: 0,
     display: "flex", alignItems: "center", justifyContent: "center",
-    background: "var(--bg-deep)", overflow: "auto",
-    padding: "24px",
+    background: "var(--bg-deep)", overflow: "auto", padding: "24px",
   },
   bgGlow1: {
     position: "fixed", top: "5%", right: "10%",
@@ -184,8 +296,7 @@ const styles = {
     width: "100%", maxWidth: 960,
   },
   header: {
-    display: "flex", alignItems: "center", gap: 20,
-    marginBottom: 4,
+    display: "flex", alignItems: "center", gap: 20, marginBottom: 4,
   },
   headerLine: {
     flex: 1, height: 1,
@@ -204,11 +315,27 @@ const styles = {
     color: "var(--text-muted)", textAlign: "center", marginBottom: 32,
   },
   columns: {
-    display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24,
-    marginBottom: 20,
+    display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, marginBottom: 20,
   },
   leftCol: { display: "flex", flexDirection: "column" },
   rightCol: { display: "flex", flexDirection: "column" },
+  modeToggle: {
+    display: "flex", background: "var(--bg-card)",
+    border: "1px solid var(--border)",
+    borderRadius: 6, padding: 4, marginBottom: 16, gap: 4,
+  },
+  modeBtn: {
+    flex: 1, padding: "8px 0",
+    background: "transparent", border: "none",
+    color: "var(--text-muted)", fontSize: 12, fontWeight: 500,
+    cursor: "pointer", borderRadius: 4,
+    fontFamily: "'Outfit', sans-serif",
+    transition: "all 0.2s",
+  },
+  modeBtnActive: {
+    background: "rgba(232,148,58,0.15)",
+    color: "#e8943a",
+  },
   label: {
     display: "flex", justifyContent: "space-between", alignItems: "baseline",
     fontSize: 12, fontWeight: 600, letterSpacing: "0.1em",
@@ -221,7 +348,7 @@ const styles = {
   },
   textareaWrapper: { position: "relative", flex: 1 },
   textarea: {
-    width: "100%", height: 280,
+    width: "100%", height: 260,
     padding: "16px", resize: "none",
     background: "var(--bg-card)",
     border: "1px solid var(--border)",
@@ -229,11 +356,38 @@ const styles = {
     fontSize: 14, lineHeight: 1.7,
     fontFamily: "'Outfit', sans-serif",
     outline: "none",
-    transition: "border-color 0.2s",
   },
   charCount: {
     position: "absolute", bottom: 10, right: 12,
     fontSize: 11, color: "var(--text-muted)",
+  },
+  dropZone: {
+    flex: 1, minHeight: 200,
+    display: "flex", flexDirection: "column",
+    alignItems: "center", justifyContent: "center", gap: 8,
+    background: "var(--bg-card)",
+    border: "1px dashed rgba(232,148,58,0.3)",
+    borderRadius: 6, cursor: "pointer",
+    transition: "all 0.2s",
+    padding: 24,
+  },
+  dropZoneDone: {
+    border: "1px dashed rgba(76,207,130,0.4)",
+    background: "rgba(76,207,130,0.05)",
+  },
+  dropZoneError: {
+    border: "1px dashed rgba(224,92,92,0.4)",
+    background: "rgba(224,92,92,0.05)",
+  },
+  dropIcon: { fontSize: 28, color: "#e8943a" },
+  dropText: { fontSize: 14, color: "var(--text-secondary)", fontWeight: 500 },
+  dropHint: { fontSize: 12, color: "var(--text-muted)" },
+  extractedPreview: {
+    marginTop: 12,
+  },
+  previewLabel: {
+    fontSize: 11, color: "var(--text-muted)", marginBottom: 6,
+    letterSpacing: "0.05em",
   },
   roleGrid: {
     display: "flex", flexDirection: "column", gap: 8,
@@ -257,16 +411,12 @@ const styles = {
   },
   roleIcon: { fontSize: 14, color: "#e8943a", width: 18, textAlign: "center" },
   roleLabel: { flex: 1 },
-  roleCheck: {
-    fontSize: 12, color: "#e8943a", fontWeight: 700,
-  },
+  roleCheck: { fontSize: 12, color: "#e8943a", fontWeight: 700 },
   error: {
     textAlign: "center", color: "#e05c5c",
     fontSize: 13, marginBottom: 12,
   },
-  submitRow: {
-    display: "flex", justifyContent: "center",
-  },
+  submitRow: { display: "flex", justifyContent: "center" },
   submitBtn: {
     display: "flex", alignItems: "center", gap: 12,
     padding: "14px 48px",

@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { motion as m } from "framer-motion";
 
 const VERDICT_CONFIG = {
@@ -38,8 +39,28 @@ function SkillPill({ skill, type, delay }) {
     </m.span>
   );
 }
+export default function Output({ result, session, onReset,onViewHistory }) {
+  const [report, setReport] = useState(null);
+  const [reportLoading, setReportLoading] = useState(true);
 
-export default function Output({ result, onReset }) {
+  useEffect(() => {
+    if (!result) return;
+    fetch("http://127.0.0.1:8000/report", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(session?.access_token && { "Authorization": `Bearer ${session.access_token}` }),
+      },
+      body: JSON.stringify(result),
+    })
+      .then(r => r.json())
+      .then(data => {
+        setReport(data.report || null);
+        setReportLoading(false);
+      })
+      .catch(() => setReportLoading(false));
+  }, [result]);
+
   if (!result) return null;
 
   const pct = result.match_percent || 0;
@@ -69,6 +90,71 @@ export default function Output({ result, onReset }) {
         >
           <h1 style={styles.logo}>ASCENT</h1>
           <p style={styles.stepLabel}>Step 03 — Gap Analysis Report</p>
+        </m.div>
+
+        {/* AI Mentor Verdict */}
+        <m.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          style={styles.mentorCard}
+        >
+          <div style={styles.mentorHeader}>
+            <span style={styles.mentorIcon}>◆</span>
+            <h3 style={styles.mentorTitle}>Mentor Verdict</h3>
+          </div>
+          {reportLoading ? (
+  <m.p
+    animate={{ opacity: [0.3, 1, 0.3] }}
+    transition={{ duration: 1.5, repeat: Infinity }}
+    style={styles.mentorLoading}
+  >
+    Generating your personalized verdict...
+  </m.p>
+) : report ? (
+  <div style={styles.mentorSections}>
+    <div style={styles.mentorBlock}>
+      <h4 style={styles.mentorBlockTitle}>
+        {report.verdict_title}
+      </h4>
+    </div>
+
+    <div style={styles.mentorBlock}>
+      <span style={styles.mentorLabel}>Current Standing</span>
+      <p style={styles.mentorText}>
+        {report.current_standing}
+      </p>
+    </div>
+
+    <div style={styles.mentorBlock}>
+      <span style={styles.mentorLabel}>Biggest Bottleneck</span>
+      <p style={styles.mentorText}>
+        {report.biggest_bottleneck}
+      </p>
+    </div>
+
+    <div style={styles.mentorBlock}>
+      <span style={styles.mentorLabel}>Priority Action</span>
+      <p style={styles.mentorText}>
+        {report.priority_action}
+      </p>
+    </div>
+
+    <div style={styles.mentorBlock}>
+      <span style={styles.mentorLabel}>Estimated Time</span>
+      <p style={styles.mentorText}>
+        {report.estimated_time_to_ready}
+      </p>
+    </div>
+
+    <div style={styles.mentorBlock}>
+      <span style={styles.mentorLabel}>Keep Going</span>
+      <p style={styles.mentorText}>
+        {report.encouragement}
+      </p>
+    </div>
+  </div>
+) : null}
         </m.div>
 
         <div style={styles.topRow}>
@@ -134,82 +220,61 @@ export default function Output({ result, onReset }) {
 
         {/* Skill sections */}
         <div style={styles.sections}>
-          {/* Matched */}
-          <m.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-            style={styles.section}
-          >
+          <m.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} style={styles.section}>
             <div style={styles.sectionHeader}>
               <span style={{ ...styles.sectionDot, background: "#4CAF82" }} />
               <h3 style={styles.sectionTitle}>Matched Skills</h3>
               <span style={styles.sectionCount}>{result.matched_skills?.length || 0}</span>
             </div>
             <div style={styles.pillsRow}>
-              {result.matched_skills?.map((s, i) => (
-                <SkillPill key={s} skill={s} type="matched" delay={0.6 + i * 0.03} />
-              ))}
+              {result.matched_skills?.map((s, i) => <SkillPill key={s} skill={s} type="matched" delay={0.6 + i * 0.03} />)}
               {(!result.matched_skills?.length) && <p style={styles.empty}>None matched</p>}
             </div>
           </m.div>
 
-          {/* Missing core */}
-          <m.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
-            style={styles.section}
-          >
+          <m.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }} style={styles.section}>
             <div style={styles.sectionHeader}>
               <span style={{ ...styles.sectionDot, background: "#e05c5c" }} />
               <h3 style={styles.sectionTitle}>Critical Gaps — Core Skills</h3>
               <span style={styles.sectionCount}>{result.missing_core?.length || 0}</span>
             </div>
             <div style={styles.pillsRow}>
-              {result.missing_core?.map((s, i) => (
-                <SkillPill key={s} skill={s} type="missing_core" delay={0.7 + i * 0.03} />
-              ))}
+              {result.missing_core?.map((s, i) => <SkillPill key={s} skill={s} type="missing_core" delay={0.7 + i * 0.03} />)}
               {(!result.missing_core?.length) && <p style={{ ...styles.empty, color: "#4CAF82" }}>✓ All core skills present</p>}
             </div>
           </m.div>
 
-          {/* Missing good to have */}
-          <m.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8 }}
-            style={styles.section}
-          >
+          <m.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }} style={styles.section}>
             <div style={styles.sectionHeader}>
               <span style={{ ...styles.sectionDot, background: "#9d8ec0" }} />
               <h3 style={styles.sectionTitle}>Good-to-Have Gaps</h3>
               <span style={styles.sectionCount}>{result.missing_good_to_have?.length || 0}</span>
             </div>
             <div style={styles.pillsRow}>
-              {result.missing_good_to_have?.map((s, i) => (
-                <SkillPill key={s} skill={s} type="missing_gth" delay={0.8 + i * 0.03} />
-              ))}
+              {result.missing_good_to_have?.map((s, i) => <SkillPill key={s} skill={s} type="missing_gth" delay={0.8 + i * 0.03} />)}
             </div>
           </m.div>
         </div>
 
         {/* Actions */}
-        <m.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.0 }}
-          style={styles.actions}
-        >
-          <m.button
-            whileHover={{ scale: 1.02, boxShadow: "0 0 30px rgba(232,148,58,0.3)" }}
-            whileTap={{ scale: 0.97 }}
-            onClick={onReset}
-            style={styles.resetBtn}
-          >
-            ← Analyze Another Profile
-          </m.button>
-        </m.div>
+<m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.0 }} style={styles.actions}>
+  <m.button
+    whileHover={{ scale: 1.02 }}
+    whileTap={{ scale: 0.97 }}
+    onClick={onViewHistory}
+    style={styles.historyBtn}
+  >
+    ◈ View My History
+  </m.button>
+  <m.button
+    whileHover={{ scale: 1.02, boxShadow: "0 0 30px rgba(232,148,58,0.3)" }}
+    whileTap={{ scale: 0.97 }}
+    onClick={onReset}
+    style={styles.resetBtn}
+  >
+    ← Analyze Another Profile
+  </m.button>
+</m.div>
       </div>
     </m.div>
   );
@@ -237,7 +302,7 @@ const styles = {
     maxWidth: 960, margin: "0 auto",
   },
   header: {
-    textAlign: "center", marginBottom: 28,
+    textAlign: "center", marginBottom: 20,
   },
   logo: {
     fontFamily: "'Cinzel', serif",
@@ -250,14 +315,37 @@ const styles = {
     fontSize: 11, letterSpacing: "0.15em", textTransform: "uppercase",
     color: "var(--text-muted)",
   },
+  mentorCard: {
+  background: "linear-gradient(135deg, rgba(123,107,158,0.08), rgba(232,148,58,0.04))",
+  border: "1px solid rgba(123,107,158,0.25)",
+  borderRadius: 8,
+  padding: "32px 40px",
+  marginBottom: 28,
+},
+  mentorHeader: {
+    display: "flex", alignItems: "center", gap: 10, marginBottom: 12,
+  },
+  mentorIcon: { color: "#9d8ec0", fontSize: 12 },
+  mentorTitle: {
+    fontFamily: "'Cinzel', serif",
+    fontSize: 13, fontWeight: 600, letterSpacing: "0.1em",
+    color: "var(--text-primary)",
+  },
+  mentorLoading: {
+    fontSize: 13, color: "var(--text-muted)", fontStyle: "italic",
+  },
+  mentorText: {
+  fontSize: 15,
+  lineHeight: 1.8,
+  color: "var(--text-secondary)",
+},
   topRow: {
-    display: "flex", gap: 24, marginBottom: 24, alignItems: "flex-start",
+    display: "flex", gap: 24, marginBottom: 20, alignItems: "flex-start",
   },
   scoreCard: {
     display: "flex", flexDirection: "column", alignItems: "center", gap: 12,
     background: "var(--bg-card)", border: "1px solid var(--border)",
-    borderRadius: 8, padding: "24px 32px",
-    minWidth: 220,
+    borderRadius: 8, padding: "24px 32px", minWidth: 220,
   },
   verdictBadge: {
     display: "flex", alignItems: "center", gap: 6,
@@ -267,8 +355,7 @@ const styles = {
   },
   roleName: {
     fontFamily: "'Cinzel', serif",
-    fontSize: 13, color: "var(--text-secondary)",
-    letterSpacing: "0.1em",
+    fontSize: 13, color: "var(--text-secondary)", letterSpacing: "0.1em",
   },
   statsCol: {
     flex: 1, display: "grid",
@@ -321,4 +408,41 @@ const styles = {
     fontSize: 13, fontWeight: 600, letterSpacing: "0.08em",
     cursor: "pointer",
   },
+  mentorSections: {
+  display: "flex",
+  flexDirection: "column",
+  gap: 16,
+},
+
+mentorBlock: {
+  paddingBottom: 12,
+  borderBottom: "1px solid rgba(123,107,158,0.15)",
+},
+
+mentorLabel: {
+  display: "block",
+  fontSize: 11,
+  letterSpacing: "0.1em",
+  textTransform: "uppercase",
+  color: "#e8943a",
+  marginBottom: 6,
+},
+
+mentorBlockTitle: {
+  fontFamily: "'Cinzel', serif",
+  fontSize: 20,
+  color: "#f5b868",
+  marginBottom: 8,
+},
+// add to styles:
+actions: { display: "flex", justifyContent: "center", gap: 12, paddingBottom: 24 },
+historyBtn: {
+  padding: "12px 28px",
+  background: "rgba(123,107,158,0.15)",
+  border: "1px solid rgba(123,107,158,0.3)",
+  borderRadius: 4, color: "#9d8ec0",
+  fontFamily: "'Cinzel', serif",
+  fontSize: 13, fontWeight: 600, letterSpacing: "0.08em",
+  cursor: "pointer",
+},
 };
