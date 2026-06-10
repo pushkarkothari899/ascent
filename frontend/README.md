@@ -1,70 +1,90 @@
-# Getting Started with Create React App
+# Ascent — Know Your Gaps. Climb Faster.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Most college students applying for tech roles have no idea what's actually blocking them from getting hired. They apply, get rejected, and don't know why. Ascent fixes that.
 
-## Available Scripts
+Paste your resume or describe your skills, pick the role you're targeting, and get a brutally honest AI-generated gap report — matched skills, critical gaps, and a concrete action plan. Your match percentage is your benchmark. Learn something new, run it again, watch the number climb.
 
-In the project directory, you can run:
+**[Live Demo →](https://ascent-demo.vercel.app)**
 
-### `npm start`
+---
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## How It Works
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Ascent runs a three-stage pipeline on your input:
 
-### `npm test`
+1. **Skill Extraction** — spaCy NER parses your resume or bio and pulls out technical skills
+2. **Semantic Matching** — sentence-transformers embeds your skills and matches them against role-specific skill definitions using cosine similarity
+3. **AI Mentor Report** — Groq (llama-3.3-70b-versatile) generates a personalized verdict: current standing, biggest bottleneck, a specific week-one action, and a 6-month milestone roadmap
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Every analysis is saved to Supabase. Returning users land on their history dashboard and can track how their match percentage improves over time.
 
-### `npm run build`
+## Target Roles
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+ML Engineer · Data Scientist · Full Stack Developer · Backend Developer · MLOps Engineer · Forward Deployed Engineer
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Tech Stack
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+| Layer | Tech |
+|---|---|
+| Frontend | React, Framer Motion |
+| Backend | FastAPI, uvicorn |
+| NLP | spaCy, sentence-transformers |
+| AI | Groq API — llama-3.3-70b-versatile |
+| Auth + DB | Supabase (PostgreSQL + Row Level Security) |
+| PDF Parsing | pdfplumber |
 
-### `npm run eject`
+## Local Setup
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Backend
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+cd backend
+python -m venv venv
+venv\Scripts\activate        # Windows
+source venv/bin/activate     # Mac/Linux
+pip install -r requirements.txt
+python -m spacy download en_core_web_sm
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Create `backend/.env`:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```
+GROQ_API_KEY=your_groq_api_key
+SUPABASE_URL=your_supabase_project_url
+SUPABASE_SECRET_KEY=your_supabase_service_role_key
+```
 
-## Learn More
+```bash
+uvicorn main:app --reload --port 8000
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Frontend
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```bash
+cd frontend
+npm install
+npm start
+```
 
-### Code Splitting
+## Project Structure
+ascent/
+├── backend/
+│   ├── main.py          # FastAPI app, all endpoints
+│   ├── extractor.py     # spaCy NER skill extraction
+│   ├── matcher.py       # sentence-transformers role matching
+│   └── roles/           # JSON role definitions (one per target role)
+└── frontend/
+└── src/
+└── pages/
+├── Landing.js
+├── Auth.js
+├── Input.js
+├── Evaluating.js
+├── Output.js
+└── Dashboard.js
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## Author
 
-### Analyzing the Bundle Size
+**Pushkar Kothari** — 2nd year CS student at WIT Solapur, building toward ML engineering.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+[GitHub](https://github.com/pushkarkothari899) · [LinkedIn](https://linkedin.com/in/pushkar-kothari)
