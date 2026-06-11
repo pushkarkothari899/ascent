@@ -12,8 +12,13 @@ load_dotenv()
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 ROLES_DIR = Path(__file__).parent / "roles"
 
-nlp = spacy.load("en_core_web_sm")
+_nlp = None
 
+def get_nlp():
+    global _nlp
+    if _nlp is None:
+        _nlp = spacy.load("en_core_web_sm")
+    return _nlp
 
 def load_all_skills() -> list[str]:
     """Load every skill from all role JSONs into a master list."""
@@ -28,6 +33,7 @@ def load_all_skills() -> list[str]:
 
 def build_phrase_matcher(skills: list[str]) -> PhraseMatcher:
     """Build a spaCy PhraseMatcher from the master skill list."""
+    nlp = get_nlp()
     matcher = PhraseMatcher(nlp.vocab, attr="LOWER")
     patterns = [nlp.make_doc(skill.lower()) for skill in skills]
     matcher.add("SKILLS", patterns)
@@ -36,6 +42,7 @@ def build_phrase_matcher(skills: list[str]) -> PhraseMatcher:
 
 def extract_with_spacy(text: str, matcher: PhraseMatcher) -> list[str]:
     """Run PhraseMatcher on user text, return matched skills."""
+    nlp = get_nlp()
     doc = nlp(text.lower())
     matches = matcher(doc)
     found = set()
