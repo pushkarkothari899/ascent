@@ -5,8 +5,13 @@ from sentence_transformers import SentenceTransformer
 
 ROLES_DIR = Path(__file__).parent / "roles"
 
-model = SentenceTransformer("all-MiniLM-L6-v2")
+_model = None
 
+def get_model():
+    global _model
+    if _model is None:
+        _model = SentenceTransformer("all-MiniLM-L6-v2")
+    return _model
 
 def load_role_skills() -> dict:
     """Load core + good_to_have skills for each role."""
@@ -52,6 +57,7 @@ def match_skills_to_role(user_skills: list[str], role_slug: str) -> dict:
         }
 
     # Embed everything
+    model = get_model()
     user_embeddings = model.encode(user_skills)
     role_embeddings = model.encode(role_skills)
 
