@@ -6,6 +6,11 @@
 **Backend API:** [ascent1.onrender.com](https://ascent1.onrender.com)
 **Matching Engine:** [Hugging Face Space](https://huggingface.co/spaces/Pushkarkothari/Ascent)
 
+![Frontend](https://img.shields.io/badge/Frontend-Vercel-black?style=for-the-badge&logo=vercel)
+![Backend](https://img.shields.io/badge/Backend-Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)
+![Matcher](https://img.shields.io/badge/Matcher-Hugging%20Face%20Spaces-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black)
+![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
+
 ---
 
 ## What is Ascent?
@@ -120,6 +125,82 @@ Frontend (Vercel) ──► Backend (Render) ──► Matcher Microservice (Hug
 
 ---
 
+## Local Setup
+
+### Prerequisites
+- Node.js 18+
+- Python 3.11
+- A Supabase project (for auth & database)
+- A Groq API key
+
+### 1. Clone the repo
+
+```bash
+git clone https://github.com/<your-username>/ascent.git
+cd ascent
+```
+
+### 2. Backend setup
+
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate   # on Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+Create a `.env` file in `backend/`:
+
+```env
+SUPABASE_URL=your_supabase_url
+SUPABASE_KEY=your_supabase_anon_key
+GROQ_API_KEY=your_groq_api_key
+MATCHER_URL=https://pushkarkothari-ascent.hf.space
+```
+
+Run the backend:
+
+```bash
+uvicorn main:app --reload
+```
+
+API will be available at `http://127.0.0.1:8000`.
+
+### 3. Frontend setup
+
+```bash
+cd frontend
+npm install
+```
+
+Create a `.env` file in `frontend/`:
+
+```env
+VITE_API_URL=http://127.0.0.1:8000
+```
+
+Run the frontend:
+
+```bash
+npm run dev
+```
+
+App will be available at `http://127.0.0.1:5173`.
+
+### 4. Matcher microservice (optional)
+
+The matcher runs as a separate Hugging Face Space and is already deployed at `MATCHER_URL` above. To run it locally instead:
+
+```bash
+cd matcher
+pip install -r requirements.txt
+uvicorn app:app --reload --port 7860
+```
+
+Then point `MATCHER_URL` in your backend `.env` to `http://127.0.0.1:7860`.
+
+---
+
 ## Roadmap / What's Next
 
 - [ ] Learning resource recommendations per missing skill
@@ -130,4 +211,4 @@ Frontend (Vercel) ──► Backend (Render) ──► Matcher Microservice (Hug
 
 ## Built By
 
-Pushkar Kothari — ML Engineering student, building toward an AI/ML internship.
+Pushkar Kothari — ML Engineering student.
