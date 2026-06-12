@@ -10,7 +10,7 @@ _model = None
 def get_model():
     global _model
     if _model is None:
-        _model = SentenceTransformer("all-MiniLM-L6-v2")
+        _model = SentenceTransformer("paraphrase-MiniLM-L3-v2")
     return _model
 
 def load_role_skills() -> dict:
