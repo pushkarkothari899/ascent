@@ -24,7 +24,7 @@ export default function Dashboard({ session, onNewAnalysis, onViewReport }) {
 
   useEffect(() => {
     if (!session?.access_token) return;
-    fetch("http://127.0.0.1:8000/history", {
+    fetch("https://ascent1.onrender.com/history", {
       headers: { "Authorization": `Bearer ${session.access_token}` },
     })
       .then(r => r.json())

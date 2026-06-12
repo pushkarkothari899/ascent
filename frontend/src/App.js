@@ -20,7 +20,7 @@ export default function App() {
   const handleAuthSuccess = async (sess) => {
     setSession(sess);
     try {
-      const res = await fetch("http://127.0.0.1:8000/history", {
+      const res = await fetch("https://ascent1.onrender.com/history", {
         headers: { "Authorization": `Bearer ${sess.access_token}` },
       });
       const data = await res.json();
@@ -38,7 +38,7 @@ export default function App() {
     setInputData({ text, role });
     navigate("evaluating");
     try {
-      const res = await fetch("http://127.0.0.1:8000/analyze", {
+      const res = await fetch("https://ascent1.onrender.com/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text, role }),

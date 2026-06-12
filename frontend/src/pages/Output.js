@@ -45,7 +45,7 @@ export default function Output({ result, session, onReset,onViewHistory }) {
 
   useEffect(() => {
     if (!result) return;
-    fetch("http://127.0.0.1:8000/report", {
+    fetch("https://ascent1.onrender.com/report", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

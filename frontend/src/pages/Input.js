@@ -29,7 +29,7 @@ export default function Input({ onAnalyze }) {
     const formData = new FormData();
     formData.append("file", file);
     try {
-      const res = await fetch("http://127.0.0.1:8000/extract-pdf", {
+      const res = await fetch("https://ascent1.onrender.com/extract-pdf", {
         method: "POST",
         body: formData,
       });
